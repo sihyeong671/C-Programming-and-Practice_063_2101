@@ -1,17 +1,36 @@
 #include <iostream>
 # include <cstdlib>
 #include <conio.h>
+#include <windows.h>
 
 using namespace std;
 const int width = 20;
 const int height = 20;
 bool gameOver;
 int x,y,feedX,feedY,score;
+int tailX[100],tailY[100];
+int nTail;
 enum eDirection{STOP=0,LEFT,RIGHT,UP,DOWN};
 eDirection dir;
 
 void Logic()
 {
+	//더 쉬운 알고리즘 찾기 
+	tailX[0]=x;
+	tailY[0]=y;
+	int prevX = tailX[0];
+	int prevY = tailY[0];
+	int prev2X,prev2Y;
+	
+	for(int i=1;i<nTail;i++)
+	{
+		prev2X = tailX[i];
+		prev2Y = tailY[i];
+		tailX[i] = prevX;
+		tailY[i] = prevY;
+		prevX = prev2X;
+		prevY = prev2Y;
+	}
 	switch(dir)
 	{
 	case UP:
@@ -33,11 +52,19 @@ void Logic()
 	{
 		gameOver = true;
 	}
+	for(int i=1;i<nTail;i++)
+	{
+		if(tailX[i]==x&&tailY[i]==y)
+		{
+			gameOver = true;
+		}
+	}
 	if(x==feedX&&y==feedY)
 	{
 		score++;
 		feedX = rand()%width;
 		feedY = rand()%height;
+		nTail++;
 	}
 }
 void Input()
@@ -66,6 +93,7 @@ void Input()
 }
 void SetUp()
 {
+	nTail=1;
 	gameOver = false;
 	dir = STOP;
 	x = width/2;
@@ -100,8 +128,21 @@ void Draw()
 				cout << "$"; 
 			}
 			else
-			{
-				cout << " ";
+			{	
+				bool print = false;
+				for(int k=1;k<nTail;k++)
+				{
+					
+					if(tailX[k]==j&&tailY[k]==i)
+					{
+						cout<<"o";
+						print = true;
+					}
+				}
+				if(!print)
+				{
+					cout << " ";
+				}			
 			}
 			
 		}
@@ -123,6 +164,7 @@ int main()
 		Draw();
 		Logic();
 		Input();
+		Sleep(100);
 	}
 	return 0;
 }
