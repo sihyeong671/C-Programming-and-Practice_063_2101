@@ -2,6 +2,7 @@
 # include <cstdlib>
 #include <conio.h>
 #include <windows.h>
+#include <ctime>
 
 using namespace std;
 const int width = 20;
@@ -10,6 +11,7 @@ bool gameOver;
 int x,y,feedX,feedY,score;
 int tailX[100],tailY[100];
 int nTail;
+int level=80;
 enum eDirection{STOP=0,LEFT,RIGHT,UP,DOWN};
 eDirection dir;
 
@@ -48,7 +50,7 @@ void Logic()
 	default:
 		break;
 	}
-	if(0>x||x>width||0>y||y>height)
+	if(0>=x||x>=width||0>=y||y>=height)
 	{
 		gameOver = true;
 	}
@@ -62,8 +64,24 @@ void Logic()
 	if(x==feedX&&y==feedY)
 	{
 		score++;
-		feedX = rand()%width;
-		feedY = rand()%height;
+		if (score%3==0)
+		{
+			if (level >0)
+			{
+				level -= 20;
+			}
+		}
+		srand(time(NULL)); 
+		feedX = rand()%(width-1);
+		if (feedX == 0) //0이 되면 안된다
+		{
+			feedX = 1;
+		}  
+		feedY = rand()%(height-1);
+		if(feedY==0)
+		{
+			feedY = 1;
+		}
 		nTail++;
 	}
 }
@@ -93,6 +111,7 @@ void Input()
 }
 void SetUp()
 {
+	srand(time(NULL));
 	nTail=1;
 	gameOver = false;
 	dir = STOP;
@@ -155,6 +174,7 @@ void Draw()
 	}
 	cout << endl;
 	cout << "score : " << score << endl;
+	cout << "level : " << (100 - level)/10 << endl;
 }
 int main()
 {
@@ -164,7 +184,7 @@ int main()
 		Draw();
 		Logic();
 		Input();
-		Sleep(100);
+//		Sleep(level);
 	}
 	return 0;
 }
