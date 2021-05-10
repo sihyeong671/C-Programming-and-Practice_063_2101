@@ -1,23 +1,28 @@
 #include <iostream>
-# include <cstdlib>
+#include <cstdlib>
 #include <conio.h>
 #include <windows.h>
 #include <ctime>
 
 using namespace std;
-const int width = 20;
+//게임화면 크기 
+const int width = 20; 
 const int height = 20;
+//게임 종료 확인 변수 
 bool gameOver;
+// 머리 위치, 먹이 위치, 점수
 int x,y,feedX,feedY,score;
-int tailX[100],tailY[100];
+// 꼬리들 
+int tailX[100],tailY[100]; 
+// 꼬리 갯수
 int nTail;
 int level=80;
+int bombX, bombY; 
 enum eDirection{STOP=0,LEFT,RIGHT,UP,DOWN};
 eDirection dir;
 
 void Logic()
 {
-	//더 쉬운 알고리즘 찾기 
 	tailX[0]=x;
 	tailY[0]=y;
 	int prevX = tailX[0];
@@ -50,7 +55,11 @@ void Logic()
 	default:
 		break;
 	}
-	if(0>=x||x>=width||0>=y||y>=height)
+	if(0>=x||x>=width||0>y||y>=height) 
+	{
+		gameOver = true;
+	}
+	if(x==bombX&&y==bombY)
 	{
 		gameOver = true;
 	}
@@ -71,17 +80,13 @@ void Logic()
 				level -= 20;
 			}
 		}
-		srand(time(NULL)); 
-		feedX = rand()%(width-1);
-		if (feedX == 0) //0이 되면 안된다
-		{
-			feedX = 1;
-		}  
-		feedY = rand()%(height-1);
-		if(feedY==0)
-		{
-			feedY = 1;
-		}
+		srand(time(NULL));
+		feedX = 1 + rand()%(width-2);
+		feedY = 1 + rand()%(height-2);
+		srand(time(NULL)*2);
+		bombX = 1 + rand()%(width-2);
+		bombY = 1 + rand()%(height-2);
+		
 		nTail++;
 	}
 }
@@ -117,8 +122,11 @@ void SetUp()
 	dir = STOP;
 	x = width/2;
 	y = height/2;
-	feedX = rand()%width;
-	feedY = rand()%height;
+	feedX = 1 + rand()%(width-2);
+	feedY = 1 + rand()%(height-2);
+	srand(time(NULL)*3);
+	bombX = rand()%(width-2);
+	bombY = rand()%(height-2);
 	score = 0;
 }
 
@@ -145,6 +153,10 @@ void Draw()
 			else if(i==feedY&&j==feedX)
 			{
 				cout << "$"; 
+			}
+			else if(i==bombY&&j==bombX)
+			{
+				cout << "X";
 			}
 			else
 			{	
@@ -174,7 +186,7 @@ void Draw()
 	}
 	cout << endl;
 	cout << "score : " << score << endl;
-	cout << "level : " << (100 - level)/10 << endl;
+	cout << "level : " << (90 - level)/10 << endl;
 }
 int main()
 {
@@ -184,7 +196,7 @@ int main()
 		Draw();
 		Logic();
 		Input();
-//		Sleep(level);
+		Sleep(level);
 	}
 	return 0;
 }
