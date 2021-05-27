@@ -1,202 +1,100 @@
-#include <iostream>
-#include <cstdlib>
-#include <conio.h>
-#include <windows.h>
-#include <ctime>
+#include "snake.h"
 
-using namespace std;
-//게임화면 크기 
-const int width = 20; 
-const int height = 20;
-//게임 종료 확인 변수 
-bool gameOver;
-// 머리 위치, 먹이 위치, 점수
-int x,y,feedX,feedY,score;
-// 꼬리들 
-int tailX[100],tailY[100]; 
-// 꼬리 갯수
-int nTail;
-int level=80;
-int bombX, bombY; 
-enum eDirection{STOP=0,LEFT,RIGHT,UP,DOWN};
-eDirection dir;
-
-void Logic()
+// 생성자  
+Snake::Snake()
 {
-	tailX[0]=x;
-	tailY[0]=y;
-	int prevX = tailX[0];
-	int prevY = tailY[0];
-	int prev2X,prev2Y;
+	Initialize();
+}
+// 뱀 머리 위치 반환  
+const Position Snake::head() const
+{
+	return body_.front();
+}
+// 뱀 꼬리 위치 반환  
+const Position Snake::tail() const
+{
+	return body_.back();
+}
+// 뱀 전체 list 반환  
+list<Position>& Snake::body()
+{
+	return body_;
+}
+ 
+//뱀 정보 초기화  
+void Snake::Initialize()
+{
+	body_.clear();
 	
-	for(int i=1;i<nTail;i++)
-	{
-		prev2X = tailX[i];
-		prev2Y = tailY[i];
-		tailX[i] = prevX;
-		tailY[i] = prevY;
-		prevX = prev2X;
-		prevY = prev2Y;
-	}
-	switch(dir)
-	{
-	case UP:
-		y--;
-		break;
-	case DOWN:
-		y++;
-		break;
-	case LEFT:
-		x--;
-		break;
-	case RIGHT:
-		x++;
-		break;
-	default:
-		break;
-	}
-	if(0>=x||x>=width||0>y||y>=height) 
-	{
-		gameOver = true;
-	}
-	if(x==bombX&&y==bombY)
-	{
-		gameOver = true;
-	}
-	for(int i=1;i<nTail;i++)
-	{
-		if(tailX[i]==x&&tailY[i]==y)
-		{
-			gameOver = true;
-		}
-	}
-	if(x==feedX&&y==feedY)
-	{
-		score++;
-		if (score%3==0)
-		{
-			if (level >0)
-			{
-				level -= 20;
-			}
-		}
-		srand(time(NULL));
-		feedX = 1 + rand()%(width-2);
-		feedY = 1 + rand()%(height-2);
-		srand(time(NULL)*2);
-		bombX = 1 + rand()%(width-2);
-		bombY = 1 + rand()%(height-2);
-		
-		nTail++;
-	}
-}
-void Input()
-{
-	if(_kbhit())
-	{
-		switch(_getch())
-		{
-			case 'a':
-				dir = LEFT;
-				break;
-			case 'd':
-				dir = RIGHT;
-				break;
-			case 'w':
-				dir = UP;
-				break;
-			case 's':
-				dir = DOWN;
-				break;
-			case 'x':
-				gameOver = true;
-				break;
-		}
-	}
-}
-void SetUp()
-{
-	srand(time(NULL));
-	nTail=1;
-	gameOver = false;
-	dir = STOP;
-	x = width/2;
-	y = height/2;
-	feedX = 1 + rand()%(width-2);
-	feedY = 1 + rand()%(height-2);
-	srand(time(NULL)*3);
-	bombX = rand()%(width-2);
-	bombY = rand()%(height-2);
-	score = 0;
+	Position pos[2] = {{31,14},{31,15}};
+	body_.push_front(pos[0]);
+	body_.push_back(pos[1]);
+	
+	direction = UP;
 }
 
-void Draw()
+//뱀이 움직이는 방향 설정  
+void Snake::SetDirection(Key key)
 {
-	system("cls");
-	for(int i=0; i < width;i++)
-	{
-		cout << "#";
-	}
-	cout << endl;
-	for(int i=0; i< height;i++)
-	{
-		for(int j=0; j<width;j++)
-		{
-			if(j==0 || j==width-1)
-			{
-				cout << "#";
-			}
-			else if(i==y&&j==x)
-			{
-				cout << "O";
-			}
-			else if(i==feedY&&j==feedX)
-			{
-				cout << "$"; 
-			}
-			else if(i==bombY&&j==bombX)
-			{
-				cout << "X";
-			}
-			else
-			{	
-				bool print = false;
-				for(int k=1;k<nTail;k++)
-				{
-					
-					if(tailX[k]==j&&tailY[k]==i)
-					{
-						cout<<"o";
-						print = true;
-					}
-				}
-				if(!print)
-				{
-					cout << " ";
-				}			
-			}
-			
-		}
-		cout << endl;
-	}
+	if (direction == UP && key == DOWN) return;
+	if (direction == DOWN && key == UP) return;
+	if (direction == LEFT && key == RIGHT) return;
+	if (direction == RIGHT && key == LEFT) return;
 	
-	for(int i=0; i < width;i++)
-	{
-		cout << "#";
-	}
-	cout << endl;
-	cout << "score : " << score << endl;
-	cout << "level : " << (90 - level)/10 << endl;
+	direction = key;
 }
-int main()
+
+// 머리를 몸통으로 바꾼다. 
+void Snake::Move()
 {
-	SetUp();
-	while(!gameOver)
+	move_xy_draw(head().X, head().Y, 'o');
+	
+	switch(direction)
 	{
-		Draw();
-		Logic();
-		Input();
-		Sleep(level);
+		case UP: move_up(); break;
+		case DOWN: move_down(); break;
+		case LEFT: move_left(); break;
+		case RIGHT: move_right(); break;
 	}
-	return 0;
 }
+
+
+
+void Snake::move_up()
+{
+	Position new_head = {head().X, head().Y-1};
+	body_.push_front(new_head);
+}
+
+void Snake::move_down()
+{
+	Position new_head = {head().X, head().Y+1};
+	body_.push_front(new_head);
+}
+
+void Snake::move_left()
+{
+	Position new_head = {head().X-1, head().Y};
+	body_.push_front(new_head);
+}
+
+void Snake::move_right()
+{
+	Position new_head = {head().X+1, head().Y};
+	body_.push_front(new_head);
+}
+
+bool Snake::is_bitten()
+{
+	list<Position>::const_iterator iter = body_.begin();
+	while (++iter != body_.end())
+		if ((iter->X == head().X) && (iter->Y == head().Y))
+			return true;
+	
+	return false;
+}
+
+
+
+
+
