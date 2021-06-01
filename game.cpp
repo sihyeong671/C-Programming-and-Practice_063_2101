@@ -1,6 +1,6 @@
 #include "game.h"
 
-SnakeGame::SnakeGame()
+SnakeGame::SnakeGame(string userID) : userID(userID)
 {
 	Initialize();
 }
@@ -28,7 +28,7 @@ ReturnCode SnakeGame::start()
 	int key;
 	do
 	{
-		key = getch();
+		key = _getch();
 	}
 	while(key != 'y' && key != 'Y' && key != 'n' && key != 'N');
 	
@@ -64,12 +64,12 @@ ReturnCode SnakeGame::play()
 	int key;
 	while(true)
 	{
-		if(kbhit())
+		if(_kbhit())
 		{
-			key = getch();
+			key = _getch();
 			if(key == 224)
 			{
-				key = getch();
+				key = _getch();
 				switch(key)
 				{
 					case UP:
@@ -141,7 +141,7 @@ ReturnCode SnakeGame::play()
 		// ∏‘¿Ã ∏‘¿Ω  
 		else if (snake_.head().X == food_pos.X && snake_.head().Y == food_pos.Y)
 		{
-			move_xy_draw(snake_.head().X, snake_.head().Y, 'o');
+			move_xy_draw(snake_.head().X, snake_.head().Y, 'O');
 			move_xy_draw(bomb_pos.X, bomb_pos.Y, ' ');
 			check = true;
 			score++;
@@ -189,7 +189,7 @@ ReturnCode SnakeGame::play()
  	int key;
  	do
  	{
- 		key = getch();	
+ 		key = _getch();	
 	}
 	while(key != 'r' && key != 'R' && key != 'n' && key != 'N' && key != 's' && key != 'S' && key != 'e' && key != 'E');
 	
@@ -216,15 +216,16 @@ ReturnCode SnakeGame::play()
 {
 	display.clear();
 	
-	// ¡°ºˆ «¡∏∞∆Æ 
-	char msg[80];
-	sprintf(msg, "Score: %d", score); // ?
+	string tmp = "Score: " + to_string(score);
+	const char* msg = tmp.c_str();
 	display.draw_msg(msg);
 	
+	DataSave save;
+	save.save(2, score, userID);
 	
 	goto_xy(55, 24);
 	cout << "Press [Enter] to quit...";
-	while (getch() != ENTER);
+	while (_getch() != ENTER);
 		
 	
 	return RETURN_SUCCESS; 
@@ -309,4 +310,3 @@ bool SnakeGame::is_no_bomb()
  	else
  		return false;
 }
- 

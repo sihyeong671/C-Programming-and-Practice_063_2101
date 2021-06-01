@@ -14,4 +14,3 @@ void move_xy_draw(int x, int y, char ch)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 	putchar(ch);
 }
-

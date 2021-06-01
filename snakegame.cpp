@@ -3,8 +3,8 @@
 
 int main()
 {
-	system("mode con cols=120 lines=31 | title no");
-	SnakeGame game;
+	system("mode con cols=120 lines=31 | title snakegame");
+	SnakeGame game("test");
 	ReturnCode ret;
 	
 	while(true)
@@ -28,6 +28,6 @@ int main()
 		break;
 	}
 	
-	return 0;
-}
+	return 0;}
+
 

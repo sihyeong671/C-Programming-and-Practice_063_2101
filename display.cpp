@@ -100,11 +100,3 @@ void Display::draw_option()
 	goto_xy(61,26);
 	cout << " 일시중지 : ESC"; 
 }
-
-
-
-
-
-
-
-

@@ -93,8 +93,3 @@ bool Snake::is_bitten()
 	
 	return false;
 }
-
-
-
-
-
